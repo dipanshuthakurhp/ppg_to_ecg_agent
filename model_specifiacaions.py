@@ -1,7 +1,7 @@
 import tensorflow as tf
-from src import train_agent, quantize, export_esp32, make_test_input
-from pathlib import Path
-model = tf.keras.models.load_model("D:\physiofusion_agent_v2\models\CNN_baseline.h5", compile=False)
+
+
+model = tf.keras.models.load_model("models\saved_keras\model.h5", compile=False)
 model.summary()
 
 import tensorflow as tf
