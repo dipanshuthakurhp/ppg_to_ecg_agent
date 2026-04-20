@@ -1,0 +1,13 @@
+idf_component_register(
+    SRCS "main.c"
+    INCLUDE_DIRS "."
+    REQUIRES "esp_common"
+)
+
+# TensorFlow Lite Micro includes (adjust path to your ESP-IDF installation)
+target_include_directories(${COMPONENT_LIB} PRIVATE 
+    $ENV{IDF_PATH}/components/esp-nn/esp-nn
+)
+
+# Optional: Link against TFLite Micro library if available
+# target_link_libraries(${COMPONENT_LIB} PRIVATE tensorflow-lite-micro)

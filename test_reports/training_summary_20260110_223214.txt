@@ -1,0 +1,42 @@
+======================================================================
+PhysioFusion Model Training Summary
+======================================================================
+
+TRAINING ERRORS
+----------------------------------------------------------------------
+  MSE                 : 0.063989
+  MAE                 : 0.217846
+  RMSE                : 0.252960
+  R2                  : 0.211014
+  residual_mean       : -0.001500
+  residual_std        : 0.252956
+  residual_max        : 0.516412
+  pred_mean           : 0.507256
+  pred_std            : 0.058755
+  pred_min            : 0.250287
+  pred_max            : 0.635514
+
+VALIDATION ERRORS
+----------------------------------------------------------------------
+  MSE                 : 0.088015
+  MAE                 : 0.256905
+  RMSE                : 0.296674
+  R2                  : 0.001439
+  residual_mean       : 0.033368
+  residual_std        : 0.294792
+  residual_max        : 0.504245
+  pred_mean           : 0.497147
+  pred_std            : 0.051612
+  pred_min            : 0.350157
+  pred_max            : 0.604119
+
+WARNINGS
+----------------------------------------------------------------------
+  None
+
+TUNING SUGGESTIONS
+----------------------------------------------------------------------
+  [!] LOW R2: Model not capturing variance - consider deeper network
+  [!] HIGH RESIDUAL VARIANCE: Increase regularization (L1/L2)
+
+======================================================================
