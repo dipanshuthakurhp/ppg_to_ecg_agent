@@ -62,15 +62,10 @@ def idf_flash_monitor(esp_project: str, port: str) -> None:
 
 def generate_inference_main_c(main_dir: str) -> str:
     """Generate a template main.c with TFLite Micro inference code"""
-    main_c_code = '''/*
- * PhysioFusion Agent - ESP32 TensorFlow Lite Micro Inference
- * Auto-generated - customize inference logic as needed
- */
-
+    main_c_code = r'''
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
 
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
@@ -98,22 +93,22 @@ extern "C" void app_main(void) {
         return;
     }
 
-    // ✅ Use MicroMutableOpResolver (optimized)
-tflite::MicroMutableOpResolver<12> resolver;
+    // Op resolver
+    tflite::MicroMutableOpResolver<12> resolver;
 
-resolver.AddConv2D();
-resolver.AddReshape();
-resolver.AddAdd();
-resolver.AddExpandDims();
-resolver.AddQuantize();
-resolver.AddDequantize();
-resolver.AddTanh();
+    resolver.AddConv2D();
+    resolver.AddReshape();
+    resolver.AddAdd();
+    resolver.AddExpandDims();
+    resolver.AddQuantize();
+    resolver.AddDequantize();
+    resolver.AddTanh();
 
-resolver.AddMaxPool2D();
-resolver.AddTransposeConv(); 
-resolver.AddShape(); 
-resolver.AddStridedSlice();
-resolver.AddConcatenation(); 
+    resolver.AddMaxPool2D();
+    resolver.AddTransposeConv();
+    resolver.AddShape();
+    resolver.AddStridedSlice();
+    resolver.AddConcatenation();
 
     // Interpreter
     tflite::MicroInterpreter interpreter(
@@ -123,42 +118,26 @@ resolver.AddConcatenation();
         kArenaSize
     );
 
-    // Allocate tensors
     if (interpreter.AllocateTensors() != kTfLiteOk) {
         printf("Tensor allocation failed!\n");
         return;
     }
 
-    // Input tensor
     TfLiteTensor* input = interpreter.input(0);
 
     printf("Input bytes: %d\n", input->bytes);
 
-    // Copy INT8 input
     int input_size = input->bytes / sizeof(int8_t);
 
     for (int i = 0; i < input_size; i++) {
         input->data.int8[i] = test_input[i];
     }
 
-    // Timing
-    struct timeval start, end;
-    gettimeofday(&start, NULL);
-
-    // Run inference
     if (interpreter.Invoke() != kTfLiteOk) {
         printf("Inference failed!\n");
         return;
     }
 
-    gettimeofday(&end, NULL);
-
-    long time_us = (end.tv_sec - start.tv_sec) * 1000000 +
-                   (end.tv_usec - start.tv_usec);
-
-    printf("Inference time: %ld us\n", time_us);
-
-    // Output tensor
     TfLiteTensor* output = interpreter.output(0);
 
     printf("\n=== Output (INT8 raw) ===\n");
@@ -168,17 +147,6 @@ resolver.AddConcatenation();
     for (int i = 0; i < output_size; i++) {
         printf("%d ", output->data.int8[i]);
     }
-
-    printf("\n");
-
-    //  Dequantized output (IMPORTANT)
-    // printf("\n=== Output (Dequantized) ===\n");
-
-    // for (int i = 0; i < output_size; i++) {
-    //     float value = (output->data.int8[i] - output->params.zero_point) *
-    //                   output->params.scale;
-    //     printf("%f ", value);
-    // }
 
     printf("\n=== Done ===\n");
 }
