@@ -96,4 +96,4 @@ tflite_rmse = rmse(ecg, tflite_data)
 print("RMSE (H5 Model):", h5_rmse)
 print("RMSE (TFLite Model):", tflite_rmse)
 
-plt.show()
+plt.savefig("reports\Final_plot.pdf", format = "pdf")

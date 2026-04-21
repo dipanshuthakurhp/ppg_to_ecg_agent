@@ -3,6 +3,7 @@ import numpy as np
 import os
 from sklearn.model_selection import train_test_split
 from tensorflow.keras import layers, Model
+import matplotlib.pyplot as plt
 
 
 def build_unet(input_len: int = 250, base_filters: int = 32) -> Model:
@@ -114,6 +115,16 @@ def run_training(type="default"):
     epochs=20,
     batch_size=32
     )
+    plt.figure()
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.title('Training vs Validation Loss')
+    plt.legend()
+    plt.grid()
+    plt.savefig("reports\model_training.pdf", format = "pdf")
+
     model.save("models\saved_keras\model.h5")
     model.summary()
 
