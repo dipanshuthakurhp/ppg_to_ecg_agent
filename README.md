@@ -60,5 +60,5 @@ python create_ecg_ppg_segments.py
 ## Obtain the model specifications
 To obtain the model specifications like architecture, size, number of paramaters, run:
 ```bash
-python .\model_specifiacaions.py    
+python .\model_specifications.py    
 ```

@@ -9,7 +9,7 @@ file_size_bytes = os.path.getsize(model_path)
 file_size_mb = file_size_bytes / (1024 * 1024)
 print("The size of model is ", file_size_mb, "MB")
 
-print("\n\n===  H5 Model   ===")
+print("\n\n===  TFLite Model   ===")
 
 tflite_path = "models\\tflite\model_int8.tflite"
 interpreter = tf.lite.Interpreter(model_path=tflite_path)
