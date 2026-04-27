@@ -5,6 +5,108 @@ from sklearn.model_selection import train_test_split
 from tensorflow.keras import layers, Model
 import matplotlib.pyplot as plt
 
+def build_dense_cnn(input_shape=(250, 1)):
+    inputs = tf.keras.Input(shape=input_shape)
+
+    # ───── Encoder ─────
+    x = tf.keras.layers.Conv1D(64, 9, padding='same', activation='relu')(inputs)
+    x = tf.keras.layers.Conv1D(64, 9, padding='same', activation='relu')(x)
+    x = tf.keras.layers.Conv1D(64, 5, padding='same', activation='relu')(x)
+
+    x = tf.keras.layers.MaxPooling1D(2)(x)  # 250 → 125
+
+    x = tf.keras.layers.Conv1D(128, 9, padding='same', activation='relu')(x)
+    x = tf.keras.layers.Conv1D(128, 9, padding='same', activation='relu')(x)
+    x = tf.keras.layers.Conv1D(128, 5, padding='same', activation='relu')(x)
+
+    x = tf.keras.layers.Conv1D(256, 7, padding='same', activation='relu')(x)
+    x = tf.keras.layers.Conv1D(256, 5, padding='same', activation='relu')(x)
+
+    # ───── Bottleneck (extra depth) ─────
+    x = tf.keras.layers.Conv1D(256, 3, padding='same', activation='relu')(x)
+    x = tf.keras.layers.Conv1D(256, 3, padding='same', activation='relu')(x)
+
+    # ───── Decoder ─────
+    x = tf.keras.layers.Conv1DTranspose(
+        256, kernel_size=9, strides=2, padding='same', activation='relu'
+    )(x)  # 125 → 250
+
+    x = tf.keras.layers.Conv1D(128, 9, padding='same', activation='relu')(x)
+    x = tf.keras.layers.Conv1D(128, 5, padding='same', activation='relu')(x)
+
+    x = tf.keras.layers.Conv1D(64, 5, padding='same', activation='relu')(x)
+    x = tf.keras.layers.Conv1D(64, 3, padding='same', activation='relu')(x)
+
+    # ───── Output ─────
+    outputs = tf.keras.layers.Conv1D(1, 1, padding='same', activation='tanh')(x)
+
+    model = tf.keras.Model(inputs, outputs)
+
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(1e-4),
+        loss='mse',
+        metrics=['mae']
+    )
+
+    return model
+
+
+def build_lstm_model(input_shape=(250, 1)):
+    model = tf.keras.Sequential([
+        tf.keras.layers.Input(shape=input_shape),
+
+        # LSTM layers
+        tf.keras.layers.LSTM(64, return_sequences=True),
+        tf.keras.layers.LSTM(64, return_sequences=True),
+
+        # Output layer
+        tf.keras.layers.TimeDistributed(
+            tf.keras.layers.Dense(1)
+        )
+    ])
+
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(1e-3),
+        loss='mse',
+        metrics=['mae']
+    )
+
+    return model
+
+def build_cnn_lstm_model(input_shape=(250, 1)):
+    inputs = tf.keras.Input(shape=input_shape)
+
+    # ───── Encoder (CNN) ─────
+    x = tf.keras.layers.Conv1D(64, 9, activation='relu', padding='same')(inputs)
+    x = tf.keras.layers.Conv1D(64, 9, activation='relu', padding='same')(x)
+    x = tf.keras.layers.MaxPooling1D(2)(x)  # 250 → 125
+
+    x = tf.keras.layers.Conv1D(128, 9, activation='relu', padding='same')(x)
+    x = tf.keras.layers.Conv1D(128, 9, activation='relu', padding='same')(x)
+
+    # ───── Temporal Modeling (LSTM) ─────
+    x = tf.keras.layers.Bidirectional(
+        tf.keras.layers.LSTM(64, return_sequences=True)
+    )(x)  # keeps sequence length = 125
+
+    # ───── Decoder ─────
+    x = tf.keras.layers.Conv1DTranspose(
+        128, kernel_size=9, strides=2, padding='same', activation='relu'
+    )(x)  # 125 → 250
+
+    x = tf.keras.layers.Conv1D(64, 9, activation='relu', padding='same')(x)
+
+    outputs = tf.keras.layers.Conv1D(1, 9, activation='tanh', padding='same')(x)
+
+    model = tf.keras.Model(inputs, outputs)
+
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(1e-4),
+        loss='mse',
+        metrics=['mae']
+    )
+
+    return model
 
 def build_model(input_shape=(250, 1)):
     model = tf.keras.Sequential([
