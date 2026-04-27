@@ -2,3 +2,5 @@ venv/
 data/
 esp32_firmware/build/
 esp32_firmware/managed_components
+junk.py
+.vscode
